@@ -13,17 +13,15 @@ export type Spot = {
   /** Kp needed for a good chance here (lower = darker sky). */
   minKp: number;
   note: string;
-  /** Google Maps search query for directions. */
-  query: string;
 };
 
 export const SPOTS: Spot[] = [
-  { id: "sanginjoki", name: "Sanginjoki", lat: 64.965, lon: 25.879, minKp: 2, note: "Dark countryside east of the city. Fields with open northern sky.", query: "Sanginjoki, Oulu" },
-  { id: "virpiniemi", name: "Virpiniemi", lat: 65.134, lon: 25.251, minKp: 2, note: "Dark seaside north of the city — wide view over the bay.", query: "Virpiniemi, Oulu" },
-  { id: "hailuoto", name: "Hailuoto · Marjaniemi", lat: 65.04, lon: 24.562, minKp: 2, note: "The darkest sky near Oulu. Free ferry from Oulunsalo (~1 h).", query: "Marjaniemi lighthouse, Hailuoto" },
-  { id: "letonniemi", name: "Hietasaari · Letonniemi", lat: 65.06, lon: 25.399, minKp: 3, note: "Northern tip of Hietasaari dunes. Sea horizon to the north, little light.", query: "Letonniemi, Oulu" },
-  { id: "nallikari", name: "Nallikari beach", lat: 65.03, lon: 25.412, minKp: 3, note: "Easy to reach by bus or bike. Walk onto the beach, away from the lamps.", query: "Nallikari beach, Oulu" },
-  { id: "kuusisaari", name: "Kuusisaari", lat: 65.022, lon: 25.459, minKp: 4, note: "City-centre island park. Works only for strong displays.", query: "Kuusisaari, Oulu" },
+  { id: "sanginjoki", name: "Sanginjoki", lat: 64.965, lon: 25.879, minKp: 2, note: "Dark countryside east of the city. Fields with open northern sky." },
+  { id: "virpiniemi", name: "Virpiniemi", lat: 65.134, lon: 25.251, minKp: 2, note: "Dark seaside north of the city — wide view over the bay." },
+  { id: "hailuoto", name: "Hailuoto · Marjaniemi", lat: 65.04, lon: 24.562, minKp: 2, note: "The darkest sky near Oulu. Free ferry from Oulunsalo (~1 h)." },
+  { id: "letonniemi", name: "Hietasaari · Letonniemi", lat: 65.06, lon: 25.399, minKp: 3, note: "Northern tip of Hietasaari dunes. Sea horizon to the north, little light." },
+  { id: "nallikari", name: "Nallikari beach", lat: 65.03, lon: 25.412, minKp: 3, note: "Easy to reach by bus or bike. Walk onto the beach, away from the lamps." },
+  { id: "kuusisaari", name: "Kuusisaari", lat: 65.022, lon: 25.459, minKp: 4, note: "City-centre island park. Works only for strong displays." },
 ];
 
 export type KpAlert = "quiet" | "dark-sky" | "city";
@@ -107,4 +105,11 @@ export function rankSpots<T extends { lat: number; lon: number; minKp: number; b
       ? a.distanceKm - b.distanceKm
       : (b.best?.peak ?? 0) - (a.best?.peak ?? 0) || a.minKp - b.minKp || a.distanceKm - b.distanceKm,
   );
+}
+
+type LatLon = { lat: number; lon: number };
+
+/** Google Maps route between exact coordinates (its text search can't find several spot names). */
+export function directionsUrl(from: LatLon, to: LatLon): string {
+  return `https://www.google.com/maps/dir/?api=1&origin=${from.lat},${from.lon}&destination=${to.lat},${to.lon}`;
 }

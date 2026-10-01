@@ -1,39 +1,8 @@
 import type { AuroraData } from "@/lib/data";
-import { day, kp, time } from "@/lib/format";
+import { kp, time } from "@/lib/format";
 import type { Point } from "@/lib/parse";
+import { KpChart } from "./KpChart";
 import { Section } from "./ui";
-
-function KpChart({ bins, now }: { bins: AuroraData["kpBins"]; now: number }) {
-  const W = 640, H = 160, top = 8, bottom = 22;
-  const bw = W / bins.length;
-  const y = (v: number) => top + (H - top - bottom) * (1 - v / 9);
-  const nowIdx = bins.findIndex((b) => Date.parse(b.start) + 3 * 3600000 > now);
-  return (
-    <svg viewBox={`0 0 ${W} ${H}`} className="w-full" role="img" aria-label="Kp, past 24 hours and 3-day forecast">
-      {bins.map((b, i) => (
-        <rect key={b.start} x={i * bw + 1} y={y(b.kp)} width={bw - 2} height={Math.max(1, y(0) - y(b.kp))} rx={2}
-          className={b.kp >= 4 ? "fill-great" : b.kp >= 2 ? "fill-good" : "fill-low"}
-          opacity={b.kind === "predicted" ? 0.45 : 0.95}>
-          <title>{`${day(b.start)} ${time(b.start)} · Kp ${kp(b.kp)} (${b.kind})`}</title>
-        </rect>
-      ))}
-      {[2, 4].map((t) => (
-        <g key={t}>
-          <line x1={0} x2={W} y1={y(t)} y2={y(t)} className="stroke-ink/40" strokeDasharray="3 4" strokeWidth={1} />
-          <text x={4} y={y(t) - 4} paintOrder="stroke" strokeWidth={4} className="fill-muted stroke-bg text-[10px]">
-            {t === 2 ? "Kp 2 · dark spots" : "Kp 4 · city"}
-          </text>
-        </g>
-      ))}
-      {nowIdx >= 0 && <line x1={nowIdx * bw} x2={nowIdx * bw} y1={top} y2={y(0)} className="stroke-ink" strokeWidth={1} />}
-      {bins.map((b, i) =>
-        i === 0 || day(b.start) !== day(bins[i - 1].start) ? (
-          <text key={b.start} x={i * bw + 2} y={H - 6} className="fill-faint text-[10px]">{day(b.start)}</text>
-        ) : null,
-      )}
-    </svg>
-  );
-}
 
 function Spark({ pts, label, unit, zero }: { pts: Point[]; label: string; unit: string; zero?: boolean }) {
   if (pts.length < 2) return <p className="text-sm text-faint">{label}: no data</p>;
@@ -82,7 +51,7 @@ export function Advanced({ data }: { data: AuroraData }) {
         </summary>
         <div className="space-y-8 border-t border-line p-5">
           <div>
-            <p className="mb-3 text-xs text-faint">Kp — past 24 h (solid) and NOAA forecast (faded), Oulu time</p>
+            <p className="mb-3 text-xs text-faint">Kp per 3-hour block — past 24 h (solid) and NOAA forecast (faded), Oulu time. Hover or tap a bar.</p>
             <KpChart bins={data.kpBins} now={Date.parse(data.generatedAt)} />
           </div>
 

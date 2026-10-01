@@ -3,7 +3,7 @@
 import { useState, useSyncExternalStore } from "react";
 import type { AuroraData } from "@/lib/data";
 import { date, time } from "@/lib/format";
-import { CITY_CENTRE, rankSpots, type RankMode } from "@/lib/oulu";
+import { CITY_CENTRE, directionsUrl, rankSpots, type RankMode } from "@/lib/oulu";
 import { Card, Score, Section } from "./ui";
 
 type Origin = { name: string; lat: number; lon: number };
@@ -28,9 +28,6 @@ const readSaved = () => {
     return null;
   }
 };
-
-const directions = (o: Origin, query: string) =>
-  `https://www.google.com/maps/dir/?api=1&origin=${o.lat},${o.lon}&destination=${encodeURIComponent(query)}`;
 
 export function Spots({ spots, dark }: { spots: AuroraData["spots"]; dark: boolean }) {
   // Origin remembered from a previous visit (read after hydration; the server always renders the city centre).
@@ -159,7 +156,7 @@ export function Spots({ spots, dark }: { spots: AuroraData["spots"]; dark: boole
               </div>
             </dl>
 
-            <a href={directions(origin, s.query)} target="_blank" rel="noopener noreferrer"
+            <a href={directionsUrl(origin, s)} target="_blank" rel="noopener noreferrer"
               className="mt-4 self-start text-sm text-great/90 underline-offset-4 hover:underline">
               Directions →
             </a>

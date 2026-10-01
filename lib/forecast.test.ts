@@ -18,8 +18,8 @@ describe("kpAt", () => {
 });
 
 const spots: Spot[] = [
-  { id: "city", name: "City", lat: 65.02, lon: 25.46, minKp: 4, note: "", query: "" },
-  { id: "dark", name: "Dark", lat: 64.96, lon: 25.88, minKp: 2, note: "", query: "" },
+  { id: "city", name: "City", lat: 65.02, lon: 25.46, minKp: 4, note: "" },
+  { id: "dark", name: "Dark", lat: 64.96, lon: 25.88, minKp: 2, note: "" },
 ];
 
 describe("buildHours", () => {

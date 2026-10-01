@@ -23,6 +23,3 @@ export const TONE: Record<Tone, { text: string; bg: string; dot: string }> = {
   maybe: { text: "text-maybe", bg: "bg-maybe", dot: "bg-maybe" },
   low: { text: "text-muted", bg: "bg-low", dot: "bg-low" },
 };
-
-export const directions = (query: string) =>
-  `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;

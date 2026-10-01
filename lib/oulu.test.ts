@@ -10,6 +10,7 @@ import {
   OULU,
   CITY_CENTRE,
   rankSpots,
+  directionsUrl,
   distanceKm,
 } from "./oulu";
 
@@ -112,5 +113,13 @@ describe("rankSpots", () => {
   it("re-ranks for a different origin", () => {
     const hailuoto = { lat: 65.0, lon: 24.7 };
     expect(rankSpots(spots, hailuoto, "nearest")[0].id).toBe("far-dark");
+  });
+});
+
+describe("directionsUrl", () => {
+  it("routes between exact coordinates, which Google Maps always resolves", () => {
+    expect(directionsUrl(CITY_CENTRE, { lat: 65.03, lon: 25.412 })).toBe(
+      "https://www.google.com/maps/dir/?api=1&origin=65.0135,25.4637&destination=65.03,25.412",
+    );
   });
 });
