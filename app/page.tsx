@@ -61,6 +61,15 @@ export default function Home() {
           <a className="underline underline-offset-4 hover:text-muted" href="https://www.swpc.noaa.gov/">NOAA SWPC</a>.
           A forecast, not a promise — the aurora is famously unpredictable.
         </p>
+        <p className="mt-1">
+          An independent, non-commercial project — not affiliated with FMI or NOAA. No sign-up, no tracking, no
+          personal data collected: a starting point you search for is looked up on OpenStreetMap and saved only in your
+          browser.{" "}
+          <a className="underline underline-offset-4 hover:text-muted" href="https://github.com/foxlight-aurora/foxlight-aurora.github.io">
+            Source code on GitHub
+          </a>
+          .
+        </p>
       </footer>
     </main>
     </>
