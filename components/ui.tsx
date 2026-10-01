@@ -1,7 +1,7 @@
 import { scoreLabel } from "@/lib/oulu";
 import { TONE } from "@/lib/format";
 
-export function Section(props: { id: string; title: string; hint?: string; children: React.ReactNode }) {
+export function Section(props: { id: string; title: string; hint?: React.ReactNode; children: React.ReactNode }) {
   return (
     <section id={props.id} aria-labelledby={`${props.id}-h`} className="mt-16">
       <div className="mb-5 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">

@@ -3,6 +3,7 @@ import { nightLabel, nightOf } from "@/lib/forecast";
 import { day } from "@/lib/format";
 import { NightColumns, type NightView } from "./NightColumns";
 import { Section } from "./ui";
+import { Term } from "./Term";
 
 export function Nights({ data }: { data: AuroraData }) {
   const now = new Date(data.generatedAt);
@@ -21,7 +22,7 @@ export function Nights({ data }: { data: AuroraData }) {
   if (!nights.length) return null;
 
   return (
-    <Section id="nights" title="Next nights" hint="Hourly chance · Kp forecast × clouds × darkness">
+    <Section id="nights" title="Next nights" hint={<><Term k="chance">Hourly chance</Term> · <Term k="kp">Kp</Term> forecast × clouds × darkness</>}>
       <NightColumns nights={nights} />
     </Section>
   );

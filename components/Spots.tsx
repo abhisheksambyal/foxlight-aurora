@@ -5,6 +5,7 @@ import type { AuroraData } from "@/lib/data";
 import { date, time } from "@/lib/format";
 import { CITY_CENTRE, directionsUrl, rankSpots, type RankMode } from "@/lib/oulu";
 import { Card, Score, Section } from "./ui";
+import { Term } from "./Term";
 
 type Origin = { name: string; lat: number; lon: number };
 
@@ -131,7 +132,7 @@ export function Spots({ spots, dark }: { spots: AuroraData["spots"]; dark: boole
               <h3 className="font-medium">{s.name}</h3>
               <span className="shrink-0 font-mono text-xs text-faint tabular-nums">{s.distanceKm} km</span>
             </div>
-            <p className="mt-1 text-xs text-faint">{SKY[s.minKp]}</p>
+            <p className="mt-1 text-xs text-faint"><Term k="spotKp">{SKY[s.minKp]}</Term></p>
             <p className="mt-3 text-sm leading-relaxed text-muted">{s.note}</p>
 
             <dl className="mt-4 grid grid-cols-3 gap-2 border-t border-line pt-4 text-xs">

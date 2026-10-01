@@ -16,7 +16,7 @@ export function Metrics({ data }: { data: AuroraData }) {
       unit: "/ 9",
       tone: (n.kp ?? 0) >= 4 ? "great" : (n.kp ?? 0) >= 2 ? "good" : "low",
       status: (n.kp ?? 0) >= 4 ? "Strong for Oulu" : (n.kp ?? 0) >= 2 ? "Enough for dark spots" : "Too quiet",
-      meaning: "Global aurora activity. Oulu needs ~2 at dark spots, 4+ to see it from town.",
+      meaning: "Global aurora activity on a 0–9 scale; higher means auroras reach further south. Oulu needs ~2 at dark spots, 4+ in town.",
     },
     {
       label: "Clouds over Oulu",
@@ -47,14 +47,14 @@ export function Metrics({ data }: { data: AuroraData }) {
       unit: "nT",
       tone: n.bz === null ? "low" : n.bz <= -5 ? "great" : n.bz < 0 ? "good" : "low",
       status: n.bz === null ? "Unavailable" : n.bz <= -5 ? "Strongly south" : n.bz < 0 ? "South" : "North",
-      meaning: "Negative (south) lets solar energy in. Below −5 often means auroras within an hour.",
+      meaning: "Direction of the Sun's magnetic field. Negative (south) lets solar energy in; below −5 often means auroras within an hour.",
     },
     {
       label: "Magnetic activity near Oulu",
       value: n.groundK === null ? "–" : `K${n.groundK}`,
       tone: n.groundK === null ? "low" : n.groundK >= 4 ? "great" : n.groundK >= 2 ? "good" : "low",
       status: n.groundK === null ? "Unavailable" : GROUND[n.groundK],
-      meaning: "Measured on the ground at Oulujärvi and Ranua — shows what is happening over Finland right now.",
+      meaning: "Local K on the same 0–9 scale as Kp, measured at Oulujärvi and Ranua — what is happening over Finland right now.",
     },
   ];
 

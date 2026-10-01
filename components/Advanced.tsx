@@ -3,9 +3,10 @@ import { kp, time } from "@/lib/format";
 import type { Point } from "@/lib/parse";
 import { KpChart } from "./KpChart";
 import { Section } from "./ui";
+import { Term } from "./Term";
 
-function Spark({ pts, label, unit, zero }: { pts: Point[]; label: string; unit: string; zero?: boolean }) {
-  if (pts.length < 2) return <p className="text-sm text-faint">{label}: no data</p>;
+function Spark({ pts, name, label, unit, zero }: { pts: Point[]; name: string; label: React.ReactNode; unit: string; zero?: boolean }) {
+  if (pts.length < 2) return <p className="text-sm text-faint">{name}: no data</p>;
   const W = 300, H = 60;
   const vals = pts.map((p) => p.value);
   const m = Math.max(...vals.map(Math.abs), 1);
@@ -19,7 +20,7 @@ function Spark({ pts, label, unit, zero }: { pts: Point[]; label: string; unit: 
         <span>{label}</span>
         <span className="font-mono text-ink tabular-nums">{vals.at(-1)!.toFixed(zero ? 1 : 0)} {unit}</span>
       </p>
-      <svg viewBox={`0 0 ${W} ${H}`} className="mt-2 h-16 w-full" preserveAspectRatio="none" role="img" aria-label={`${label}, last 2 hours`}>
+      <svg viewBox={`0 0 ${W} ${H}`} className="mt-2 h-16 w-full" preserveAspectRatio="none" role="img" aria-label={`${name}, last 2 hours`}>
         {zero && <line x1={0} x2={W} y1={y(0)} y2={y(0)} className="stroke-line" strokeWidth={1} />}
         <polyline fill="none" className="stroke-great" strokeWidth={1.5} vectorEffect="non-scaling-stroke"
           points={pts.map((p) => `${x(p.time).toFixed(1)},${y(p.value).toFixed(1)}`).join(" ")} />
@@ -33,13 +34,13 @@ function Spark({ pts, label, unit, zero }: { pts: Point[]; label: string; unit: 
 
 export function Advanced({ data }: { data: AuroraData }) {
   const n = data.now;
-  const rows: [string, string][] = [
-    ["Kp (NOAA, latest 3 h)", kp(n.kp)],
-    ["Nowcast Kp (max of Kp and local K)", kp(n.effectiveKp)],
-    ...n.ground.map((g): [string, string] => [`${g.name} H-range, last 60 min`, `${g.rangeNt} nT`]),
-    ["OVATION probability overhead", n.ovation ? `${n.ovation.overhead}%` : "–"],
-    ["OVATION max within view (north)", n.ovation ? `${n.ovation.inView}%` : "–"],
-    ["Sun altitude", `${n.sunAlt.toFixed(1)}°`],
+  const rows: [string, React.ReactNode, string][] = [
+    ["kp", <><Term k="kp">Kp</Term> (NOAA, latest 3 h)</>, kp(n.kp)],
+    ["nowcast", <><Term k="nowcast">Nowcast Kp</Term> (max of Kp and <Term k="localK">local K</Term>)</>, kp(n.effectiveKp)],
+    ...n.ground.map((g): [string, React.ReactNode, string] => [g.id, <>{g.name} <Term k="hRange">H-range</Term>, last 60 min</>, `${g.rangeNt} nT`]),
+    ["ov1", <><Term k="ovation">OVATION</Term> probability overhead</>, n.ovation ? `${n.ovation.overhead}%` : "–"],
+    ["ov2", <><Term k="ovation">OVATION</Term> max within view (north)</>, n.ovation ? `${n.ovation.inView}%` : "–"],
+    ["sun", <Term key="s" k="sunAlt">Sun altitude</Term>, `${n.sunAlt.toFixed(1)}°`],
   ];
 
   return (
@@ -51,18 +52,18 @@ export function Advanced({ data }: { data: AuroraData }) {
         </summary>
         <div className="space-y-8 border-t border-line p-5">
           <div>
-            <p className="mb-3 text-xs text-faint">Kp per 3-hour block — past 24 h (solid) and NOAA forecast (faded), Oulu time. Hover or tap a bar.</p>
+            <p className="mb-3 text-xs text-faint"><Term k="kp">Kp</Term> per 3-hour block — past 24 h (solid) and NOAA forecast (faded), Oulu time. Hover or tap a bar.</p>
             <KpChart bins={data.kpBins} now={Date.parse(data.generatedAt)} />
           </div>
 
           <div className="grid gap-6 sm:grid-cols-2">
-            <Spark pts={data.wind.speed} label="Solar wind speed · 2 h" unit="km/s" />
-            <Spark pts={data.wind.bz} label="Bz (GSM) · 2 h" unit="nT" zero />
+            <Spark pts={data.wind.speed} name="Solar wind speed" label={<><Term k="solarWind">Solar wind speed</Term> · 2 h</>} unit="km/s" />
+            <Spark pts={data.wind.bz} name="Bz" label={<><Term k="bz">Bz</Term> (GSM) · 2 h</>} unit="nT" zero />
           </div>
 
           <dl className="divide-y divide-line text-sm">
-            {rows.map(([k, v]) => (
-              <div key={k} className="flex justify-between gap-4 py-2">
+            {rows.map(([key, k, v]) => (
+              <div key={key} className="flex justify-between gap-4 py-2">
                 <dt className="text-muted">{k}</dt>
                 <dd className="font-mono tabular-nums">{v}</dd>
               </div>

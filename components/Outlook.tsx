@@ -2,6 +2,7 @@ import type { AuroraData } from "@/lib/data";
 import { outlookHighlights } from "@/lib/forecast";
 import { date } from "@/lib/format";
 import { Card, Section } from "./ui";
+import { Term } from "./Term";
 
 const CELL: Record<number, string> = {
   0: "text-faint", 1: "text-faint", 2: "text-muted",
@@ -15,7 +16,7 @@ export function Outlook({ data }: { data: AuroraData }) {
   const lead = (new Date(days[0].date).getUTCDay() + 6) % 7; // Monday-first calendar
 
   return (
-    <Section id="outlook" title="Coming weeks" hint="NOAA 27-day outlook · max Kp per day">
+    <Section id="outlook" title="Coming weeks" hint={<><Term k="outlook">NOAA 27-day outlook</Term> · max <Term k="kp">Kp</Term> per day</>}>
       <Card className="p-5">
         <p className="text-sm leading-relaxed text-muted">
           {highlights.length ? (

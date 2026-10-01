@@ -3,6 +3,7 @@ import { nightLabel, outlookHighlights, verdict, type Verdict } from "@/lib/fore
 import { date, day, kp, time, TONE } from "@/lib/format";
 import { directionsUrl } from "@/lib/oulu";
 import { Score } from "./ui";
+import { Term } from "./Term";
 
 const TITLE: Record<Verdict, string> = {
   now: "Go out now",
@@ -62,7 +63,7 @@ export function Hero({ data }: { data: AuroraData }) {
   } else if (tonight && (v === "tonight" || v === "maybe")) {
     detail = (
       <>Best between <b className="font-medium text-ink">{time(tonight.start)}</b> and <b className="font-medium text-ink">{time(tonight.end)}</b> at{" "}
-        <b className="font-medium text-ink">{where?.name}</b>. Expected Kp {kp(tonight.kp)}, clouds {tonight.cloud === null ? "?" : Math.round(tonight.cloud)}%.</>
+        <b className="font-medium text-ink">{where?.name}</b>. Expected <Term k="kp">Kp</Term> {kp(tonight.kp)}, clouds {tonight.cloud === null ? "?" : Math.round(tonight.cloud)}%.</>
     );
   } else {
     const why = tonight?.limit === "clouds" ? "Clouds will cover the sky" : "Solar activity is too low to reach Oulu";
@@ -88,8 +89,8 @@ export function Hero({ data }: { data: AuroraData }) {
       {target && target !== tonight && <p className="mt-8 mb-2 text-xs text-faint">Next good window</p>}
       <dl className={`${target && target !== tonight ? "" : "mt-8"} grid grid-cols-3 divide-x divide-line rounded-2xl border border-line bg-surface/70`}>
         {[
-          ["When", when ? <>{when.date}<span className={sub}>{when.time}</span></> : "–"],
-          ["Where", where ? (
+          ["When", "When", when ? <>{when.date}<span className={sub}>{when.time}</span></> : "–"],
+          ["Where", "Where", where ? (
             <>
               {where.name.split(" · ")[0]}
               <a href={directionsUrl(null, where)} target="_blank" rel="noopener noreferrer"
@@ -98,13 +99,13 @@ export function Hero({ data }: { data: AuroraData }) {
               </a>
             </>
           ) : "–"],
-          ["Chance", <>
+          ["Chance", <Term key="t" k="chance">Chance</Term>, <>
             <Score value={score} />
-            {basis && <span className={sub}>Kp {kp(basis.kp)} · clouds {basis.cloud === null ? "?" : Math.round(basis.cloud)}%</span>}
+            {basis && <span className={sub}><Term k="kp">Kp</Term> {kp(basis.kp)} · clouds {basis.cloud === null ? "?" : Math.round(basis.cloud)}%</span>}
           </>],
-        ].map(([k, val]) => (
-          <div key={k as string} className="min-w-0 px-4 py-4 sm:px-5">
-            <dt className="text-xs text-faint">{k}</dt>
+        ].map(([key, label, val]) => (
+          <div key={key as string} className="min-w-0 px-4 py-4 sm:px-5">
+            <dt className="text-xs text-faint">{label}</dt>
             <dd className="mt-1 text-sm leading-snug font-medium sm:text-base">{val}</dd>
           </div>
         ))}
@@ -112,7 +113,7 @@ export function Hero({ data }: { data: AuroraData }) {
 
       <p className="mt-4 inline-flex items-center gap-2 rounded-full border border-line px-3 py-1.5 text-xs text-muted">
         <span className={`size-1.5 rounded-full ${TONE[alert.tone].dot}`} />
-        <span className="font-mono text-ink tabular-nums">Kp {kp(data.now.effectiveKp)}</span>
+        <Term k="kp" icon><span className="font-mono text-ink tabular-nums">Kp {kp(data.now.effectiveKp)}</span></Term>
         {alert.text}
         {data.now.sunAlt > -6 && alert.tone !== "low" && <span className="text-faint">(once dark)</span>}
       </p>

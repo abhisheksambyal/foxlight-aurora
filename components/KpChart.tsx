@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { day, hour, kp, time } from "@/lib/format";
 import type { KpBin } from "@/lib/parse";
+import { Term } from "./Term";
 
 const H = 9; // Kp scale
 const end = (b: KpBin) => new Date(Date.parse(b.start) + 3 * 3600000).toISOString();
@@ -20,8 +21,8 @@ export function KpChart({ bins, now }: { bins: KpBin[]; now: number }) {
       <p className="mb-3 flex flex-wrap items-baseline gap-x-2 text-sm" aria-live="polite">
         <span className="text-faint">{active === null ? "Now" : "Selected"}</span>
         <span>{day(shown.start)}, {time(shown.start)}–{time(end(shown))}</span>
-        <span className="font-mono">Kp {kp(shown.kp)}</span>
-        <span className="text-xs text-faint">{shown.kind}</span>
+        <span className="font-mono"><Term k="kp">Kp</Term> {kp(shown.kp)}</span>
+        <span className="text-xs text-faint"><Term k="kpKind">{shown.kind}</Term></span>
       </p>
 
       <div className="relative h-36" onPointerLeave={(e) => e.pointerType === "mouse" && setActive(null)}>
