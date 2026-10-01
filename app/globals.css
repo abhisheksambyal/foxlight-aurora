@@ -32,3 +32,33 @@ body {
 
 details > summary { list-style: none; cursor: pointer; }
 details > summary::-webkit-details-marker { display: none; }
+
+/* Night sky + aurora curtain behind the page (components/AuroraFx.tsx).
+   Only transform and opacity animate, so it runs on the compositor without repainting. */
+.fx-layer {
+  position: fixed;
+  inset: 0 0 auto 0;
+  height: 70vh;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(to bottom, black 40%, transparent);
+  mask-image: linear-gradient(to bottom, black 40%, transparent);
+}
+.fx-stars { position: absolute; top: 0; left: 0; width: 1px; height: 1px; border-radius: 50%; }
+.fx-stars-big { width: 2px; height: 2px; }
+.fx-aurora { position: absolute; inset: 0; transition: opacity 1s; }
+.fx-curtain { position: absolute; top: 0; left: 0; width: 200%; height: 40vh; filter: blur(10px); will-change: transform; }
+.fx-curtain-a { animation: fx-flow 70s linear infinite, fx-pulse 10s ease-in-out infinite alternate; }
+.fx-curtain-b { animation: fx-flow 48s linear infinite reverse, fx-pulse 8s ease-in-out infinite alternate-reverse; }
+@keyframes fx-flow { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+@keyframes fx-pulse { from { opacity: 0.65; } to { opacity: 1; } }
+/* Strong storms (Kp 5+) add the red/magenta upper aurora */
+.fx-red {
+  position: absolute; left: 5vw; top: -10vh; width: 90vw; height: 26vh; border-radius: 50%;
+  background: radial-gradient(closest-side, rgb(244 63 94 / 0.25), transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fx-curtain { animation: none; }
+}

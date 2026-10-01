@@ -45,7 +45,7 @@ export function Term({ k, children, icon }: { k: TermKey; children: React.ReactN
         ref={ref}
         type="button"
         aria-describedby={pos ? id : undefined}
-        className="cursor-help underline decoration-faint decoration-dotted underline-offset-4 hover:decoration-muted focus:outline-none focus-visible:decoration-great"
+        className={`${icon ? "whitespace-nowrap " : ""}cursor-help underline decoration-faint decoration-dotted underline-offset-4 hover:decoration-muted focus:outline-none focus-visible:decoration-great`}
         onPointerDown={(e) => (mouse.current = e.pointerType === "mouse")}
         onPointerEnter={(e) => e.pointerType === "mouse" && show()}
         onPointerLeave={(e) => e.pointerType === "mouse" && hide()}

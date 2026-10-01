@@ -1,4 +1,5 @@
 import { Advanced } from "@/components/Advanced";
+import { AuroraFx } from "@/components/AuroraFx";
 import { AutoRefresh } from "@/components/AutoRefresh";
 import { Hero } from "@/components/Hero";
 import { Metrics } from "@/components/Metrics";
@@ -20,7 +21,9 @@ const TIPS = [
 export default async function Home() {
   const data = await getAuroraData();
   return (
-    <main className="mx-auto max-w-3xl px-4 pb-20 sm:px-6">
+    <>
+    <AuroraFx kp={data.now.effectiveKp} />
+    <main className="relative z-[1] mx-auto max-w-3xl px-4 pb-20 sm:px-6">
       <AutoRefresh generatedAt={data.generatedAt} />
       <Hero data={data} />
       <Nights data={data} />
@@ -58,5 +61,6 @@ export default async function Home() {
         </p>
       </footer>
     </main>
+    </>
   );
 }

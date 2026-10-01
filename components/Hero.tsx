@@ -111,7 +111,7 @@ export function Hero({ data }: { data: AuroraData }) {
         ))}
       </dl>
 
-      <p className="mt-4 inline-flex items-center gap-2 rounded-full border border-line px-3 py-1.5 text-xs text-muted">
+      <p className="mt-4 inline-flex items-center gap-2 rounded-full border border-line bg-bg px-3 py-1.5 text-xs text-muted">
         <span className={`size-1.5 rounded-full ${TONE[alert.tone].dot}`} />
         <Term k="kp" icon><span className="font-mono text-ink tabular-nums">Kp {kp(data.now.effectiveKp)}</span></Term>
         {alert.text}
