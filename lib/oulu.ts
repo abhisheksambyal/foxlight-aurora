@@ -109,7 +109,11 @@ export function rankSpots<T extends { lat: number; lon: number; minKp: number; b
 
 type LatLon = { lat: number; lon: number };
 
-/** Google Maps route between exact coordinates (its text search can't find several spot names). */
-export function directionsUrl(from: LatLon, to: LatLon): string {
-  return `https://www.google.com/maps/dir/?api=1&origin=${from.lat},${from.lon}&destination=${to.lat},${to.lon}`;
+/**
+ * Google Maps route to exact coordinates (its text search can't find several spot names).
+ * Without `from`, Maps starts from the viewer's current location.
+ */
+export function directionsUrl(from: LatLon | null, to: LatLon): string {
+  const origin = from ? `&origin=${from.lat},${from.lon}` : "";
+  return `https://www.google.com/maps/dir/?api=1${origin}&destination=${to.lat},${to.lon}`;
 }

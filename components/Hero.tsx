@@ -1,6 +1,7 @@
 import type { AuroraData } from "@/lib/data";
 import { nightLabel, outlookHighlights, verdict, type Verdict } from "@/lib/forecast";
-import { date, kp, time, TONE } from "@/lib/format";
+import { date, day, kp, time, TONE } from "@/lib/format";
+import { directionsUrl } from "@/lib/oulu";
 import { Score } from "./ui";
 
 const TITLE: Record<Verdict, string> = {
@@ -39,10 +40,17 @@ export function Hero({ data }: { data: AuroraData }) {
   const score = v === "now" ? bestNow.now : (target ?? tonight)?.peak ?? 0;
   const when =
     v === "now"
-      ? `Now – ${data.now.dark ? time(data.now.dark.end) : "dawn"}`
+      ? { date: day(data.generatedAt), time: `Now – ${data.now.dark ? time(data.now.dark.end) : "dawn"}` }
       : target
-        ? `${target === tonight ? "" : date(target.date).split(" ")[0] + " "}${time(target.start)}–${time(target.end)}`
-        : "–";
+        ? {
+            date: day(target.start),
+            // A window starting after midnight belongs to the previous evening's night (as in "Next nights").
+            time: `${time(target.start)}–${time(target.end)}${day(target.start) !== date(target.date) ? ` · ${date(target.date).split(" ")[0]} night` : ""}`,
+          }
+        : null;
+  // Kp and clouds behind the chance figure.
+  const basis = v === "now" ? { kp: data.now.effectiveKp, cloud: bestNow.cloud } : (target ?? tonight);
+  const sub = "mt-0.5 block text-xs font-normal text-muted";
   const nextActive = outlookHighlights(data.outlook)[0];
   const alert = ALERT[data.now.alert];
 
@@ -80,9 +88,20 @@ export function Hero({ data }: { data: AuroraData }) {
       {target && target !== tonight && <p className="mt-8 mb-2 text-xs text-faint">Next good window</p>}
       <dl className={`${target && target !== tonight ? "" : "mt-8"} grid grid-cols-3 divide-x divide-line rounded-2xl border border-line bg-surface/70`}>
         {[
-          ["When", when],
-          ["Where", where ? where.name.split(" · ")[0] : "–"],
-          ["Chance", <Score key="s" value={score} />],
+          ["When", when ? <>{when.date}<span className={sub}>{when.time}</span></> : "–"],
+          ["Where", where ? (
+            <>
+              {where.name.split(" · ")[0]}
+              <a href={directionsUrl(null, where)} target="_blank" rel="noopener noreferrer"
+                className="mt-0.5 block text-xs font-normal text-great/90 underline-offset-4 hover:underline">
+                Directions →
+              </a>
+            </>
+          ) : "–"],
+          ["Chance", <>
+            <Score value={score} />
+            {basis && <span className={sub}>Kp {kp(basis.kp)} · clouds {basis.cloud === null ? "?" : Math.round(basis.cloud)}%</span>}
+          </>],
         ].map(([k, val]) => (
           <div key={k as string} className="min-w-0 px-4 py-4 sm:px-5">
             <dt className="text-xs text-faint">{k}</dt>

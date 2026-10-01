@@ -123,3 +123,11 @@ describe("directionsUrl", () => {
     );
   });
 });
+
+describe("directionsUrl without an origin", () => {
+  it("lets Google Maps start from the viewer's current location", () => {
+    expect(directionsUrl(null, { lat: 65.03, lon: 25.412 })).toBe(
+      "https://www.google.com/maps/dir/?api=1&destination=65.03,25.412",
+    );
+  });
+});
