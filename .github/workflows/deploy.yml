@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
   schedule:
-    - cron: "*/30 * * * *" # rebuild with fresh NOAA + FMI data (GitHub may delay scheduled runs)
+    - cron: "3-59/10 * * * *" # rebuild with fresh NOAA + FMI data every 10 min (off the hour: GitHub delays busy slots)
   workflow_dispatch:
 
 permissions:

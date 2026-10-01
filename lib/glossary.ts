@@ -9,11 +9,10 @@ export const GLOSSARY = {
   clouds: "Share of the sky covered by cloud. Auroras are ~100 km up, above all clouds — under 30% is good, over 70% usually hides them.",
   bz: "Bz is the north–south direction of the Sun's magnetic field arriving at Earth (in nT). Negative = south, which lets solar energy in; below −5 often means auroras within the hour.",
   solarWind: "The stream of particles from the Sun, in km/s. Around 400 is normal; above ~450 drives stronger, livelier auroras.",
-  localK:
-    "Local K-index (0–9): the same scale as Kp, but measured right next to Oulu by FMI magnetometers. It shows what is happening over Finland right now.",
-  hRange:
-    "How far the horizontal magnetic field swung in the last hour, in nanotesla (nT). Bigger swings mean auroral currents overhead — 100+ nT is very active.",
-  nowcast: "Our estimate of activity over Oulu right now: the higher of the global Kp and the local K-index.",
+  rIndex:
+    "FMI's real-time auroral activity index, measured every 5 minutes by magnetometers next to Oulu. Above the yellow line there's a 50% chance of weak auroras, above the red line a 50% chance of strong ones.",
+  nowcast:
+    "Our estimate of activity over Oulu right now: the higher of the global Kp and FMI's local R-index (converted: yellow line ≈ Kp 3, red line ≈ Kp 5).",
   ovation:
     "NOAA's OVATION model: the % chance of aurora directly overhead in the next ~30–90 min. 'Within view' also counts auroras visible low on the northern horizon.",
   sunAlt: "How high the Sun is (negative = below the horizon). Below −12° the sky is dark enough for auroras; above −6° it is too bright.",

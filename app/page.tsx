@@ -6,8 +6,9 @@ import { Metrics } from "@/components/Metrics";
 import { Nights } from "@/components/Nights";
 import { Outlook } from "@/components/Outlook";
 import { Spots } from "@/components/Spots";
+import { StaleBanner } from "@/components/StaleBanner";
 import { Section } from "@/components/ui";
-import { getAuroraData } from "@/lib/data";
+import { loadAuroraData } from "@/lib/load";
 import { day, time } from "@/lib/format";
 
 const TIPS = [
@@ -18,13 +19,14 @@ const TIPS = [
   ["Dress for −20 °C", "Waiting is part of it. Layers, a hat, and something warm to drink."],
 ];
 
-export default async function Home() {
-  const data = await getAuroraData();
+export default function Home() {
+  const data = loadAuroraData();
   return (
     <>
     <AuroraFx kp={data.now.effectiveKp} />
     <main className="relative z-[1] mx-auto max-w-3xl px-4 pb-20 sm:px-6">
       <AutoRefresh generatedAt={data.generatedAt} />
+      <StaleBanner generatedAt={data.generatedAt} />
       <Hero data={data} />
       <Nights data={data} />
       <Spots spots={data.spots} dark={data.now.sunAlt < -6} />
@@ -50,7 +52,7 @@ export default async function Home() {
           whose tail sweeps sparks from the snow into the sky.
         </p>
         <p>
-          Updated {day(data.generatedAt)} {time(data.generatedAt)} (Oulu time) · updated about every 30 minutes.
+          Updated {day(data.generatedAt)} {time(data.generatedAt)} (Oulu time) · updated every 10 minutes.
         </p>
         <p className="mt-1">
           Data:{" "}

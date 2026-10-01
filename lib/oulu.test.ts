@@ -3,7 +3,7 @@ import {
   auroraFactor,
   darknessFactor,
   kpAlert,
-  localK,
+  rIndexKp,
   scoreLabel,
   sunAltitude,
   visibilityScore,
@@ -75,15 +75,16 @@ describe("scoreLabel", () => {
   ])("%i → %s", (s, label) => expect(scoreLabel(s).label).toBe(label));
 });
 
-describe("localK (1-hour H-range, K9 = 1000 nT)", () => {
-  it.each([
-    [5, 0],
-    [15, 1],
-    [45, 3],
-    [100, 4],
-    [250, 6],
-    [1200, 9],
-  ])("%i nT → K%i", (range, k) => expect(localK(range)).toBe(k));
+describe("rIndexKp — FMI R-index → Kp-equivalent for Oulu", () => {
+  // FMI thresholds: yellow = 50% chance of weak auroras, red = 50% chance of strong auroras (Oulujärvi 68 / 200)
+  it("is 0 with no activity", () => expect(rIndexKp(0, 68, 200)).toBe(0));
+  it("equals Kp 3 at the yellow threshold (weak auroras: dark spots yes, city lights no)", () =>
+    expect(rIndexKp(68, 68, 200)).toBe(3));
+  it("equals Kp 5 at the red threshold (strong auroras likely → visible everywhere)", () =>
+    expect(rIndexKp(200, 68, 200)).toBe(5));
+  it("interpolates between the thresholds", () => expect(rIndexKp(134, 68, 200)).toBeCloseTo(4, 2));
+  it("scales linearly below yellow", () => expect(rIndexKp(34, 68, 200)).toBeCloseTo(1.5, 2));
+  it("caps at Kp 5 above red", () => expect(rIndexKp(500, 68, 200)).toBe(5));
 });
 
 describe("distanceKm", () => {

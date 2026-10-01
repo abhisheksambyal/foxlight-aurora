@@ -58,12 +58,15 @@ export function scoreLabel(score: number): { label: string; tone: Tone } {
   return { label: "Unlikely", tone: "low" };
 }
 
-// K-index lower limits for a K9 = 1000 nT station (Oulujärvi/Ranua latitude).
-const K_LIMITS = [0, 10, 20, 40, 80, 140, 240, 400, 660, 1000];
-
-/** Approximate local K from a magnetometer's H-component range (nT). */
-export function localK(rangeNt: number): number {
-  return K_LIMITS.findLastIndex((limit) => rangeNt >= limit);
+/**
+ * FMI R-index → Kp-equivalent for the visibility model. FMI's station thresholds: yellow = 50% chance of
+ * weak auroras, red = 50% chance of strong auroras. Weak auroras show at dark spots but not through city lights, so
+ * yellow maps to Kp 3 (dark spots certain, semi-dark likely, city unlikely); red maps to Kp 5 (capped). Linear between.
+ */
+export function rIndexKp(r: number, yellow: number, red: number): number {
+  if (r >= red) return 5;
+  if (r >= yellow) return 3 + (2 * (r - yellow)) / (red - yellow);
+  return (3 * Math.max(0, r)) / yellow;
 }
 
 const RAD = Math.PI / 180;

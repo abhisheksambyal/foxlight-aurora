@@ -5,7 +5,7 @@ import {
   parseFmiSeries,
   parseKpForecast,
   parseRtsw,
-  stationRanges,
+  parseRIndex,
 } from "./parse";
 
 describe("parseKpForecast", () => {
@@ -56,20 +56,6 @@ describe("parseFmiSeries", () => {
   });
 });
 
-describe("stationRanges", () => {
-  it("returns max-min of each station's series within the window", () => {
-    const series = [
-      { lat: 64.5107, lon: 27.2267, points: [
-        { time: "2026-10-01T17:00:00Z", value: -500 }, // outside window
-        { time: "2026-10-01T17:30:00Z", value: -60 },
-        { time: "2026-10-01T18:00:00Z", value: -95 },
-      ] },
-    ];
-    const ranges = stationRanges(series, [{ id: "OUJ", name: "Oulujärvi", lat: 64.5107, lon: 27.2267 }], new Date("2026-10-01T18:05:00Z"), 60);
-    expect(ranges).toEqual([{ id: "OUJ", name: "Oulujärvi", rangeNt: 35, latest: "2026-10-01T18:00:00Z" }]);
-  });
-});
-
 describe("parseRtsw", () => {
   it("keeps only the active spacecraft, oldest-first, within the window", () => {
     const rows = [
@@ -93,4 +79,46 @@ describe("ovationNear", () => {
     ];
     expect(ovationNear({ coordinates: coords }, 25.47, 65.01)).toEqual({ overhead: 3, inView: 30 });
   });
+});
+
+describe("parseRIndex (FMI R-index Plotly JSON)", () => {
+  const fig = (bars: [string, number | null][], lines = [68, 200]) => ({
+    data: [
+      { name: "No activity", x: bars.map((b) => b[0]), customdata: bars.map((b) => ["No activity", b[1]]) },
+      { name: undefined, x: ["2026-10-01T00:00:00+00:00"] }, // "no data" helper trace without customdata
+    ],
+    layout: { title: { text: "Oulujärvi (OUJ 64.52&deg; N 27.23&deg; E)" }, shapes: [
+      ...lines.map((y) => ({ type: "line", y0: y, y1: y })),
+      { type: "rect", y0: 0, y1: 1 },
+    ] },
+  });
+
+  it("reads thresholds and the strongest R in the latest 15 minutes", () => {
+    const r = parseRIndex(fig([
+      ["2026-10-01T20:30:00+00:00", 150], // older than 15 min before the latest → ignored
+      ["2026-10-01T20:50:00+00:00", 99],
+      ["2026-10-01T20:55:00+00:00", 120],
+      ["2026-10-01T21:00:00+00:00", 80],
+    ]));
+    expect(r).toEqual({ yellow: 68, red: 200, r: 120, time: "2026-10-01T21:00:00Z" });
+  });
+  it("skips data gaps (null) instead of reading them as zero", () => {
+    const r = parseRIndex(fig([["2026-10-01T20:55:00+00:00", 90], ["2026-10-01T21:00:00+00:00", null]]));
+    expect(r).toMatchObject({ r: 90, time: "2026-10-01T20:55:00Z" });
+  });
+  it("throws when there is no data at all", () =>
+    expect(() => parseRIndex(fig([["2026-10-01T21:00:00+00:00", null]]))).toThrow());
+  it("throws when the thresholds are missing (format changed)", () =>
+    expect(() => parseRIndex(fig([["2026-10-01T21:00:00+00:00", 5]], []))).toThrow());
+});
+
+describe("schema validation — a changed API format must fail loudly, not produce wrong numbers", () => {
+  it("rejects NOAA's old array-of-arrays Kp format", () =>
+    expect(() => parseKpForecast([["time_tag", "kp"], ["2026-10-01 00:00:00", "2.33"]] as never)).toThrow());
+  it("rejects Kp rows without a numeric kp", () =>
+    expect(() => parseKpForecast([{ time_tag: "2026-10-01T00:00:00", kp: null, observed: "predicted", noaa_scale: null }] as never)).toThrow());
+  it("rejects an empty Kp forecast", () => expect(() => parseKpForecast([])).toThrow());
+  it("rejects a 27-day outlook with no rows", () => expect(() => parse27Day("<html>maintenance</html>")).toThrow());
+  it("rejects an OVATION grid without the Oulu cell", () =>
+    expect(() => ovationNear({ coordinates: [[0, 0, 1]] }, 25.47, 65.01)).toThrow());
 });

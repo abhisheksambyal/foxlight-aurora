@@ -36,8 +36,12 @@ export function Advanced({ data }: { data: AuroraData }) {
   const n = data.now;
   const rows: [string, React.ReactNode, string][] = [
     ["kp", <><Term k="kp">Kp</Term> (NOAA, latest 3 h)</>, kp(n.kp)],
-    ["nowcast", <><Term k="nowcast">Nowcast Kp</Term> (max of Kp and <Term k="localK">local K</Term>)</>, kp(n.effectiveKp)],
-    ...n.ground.map((g): [string, React.ReactNode, string] => [g.id, <>{g.name} <Term k="hRange">H-range</Term>, last 60 min</>, `${g.rangeNt} nT`]),
+    ["nowcast", <><Term k="nowcast">Nowcast Kp</Term> (max of Kp and FMI R-index)</>, kp(n.effectiveKp)],
+    ...n.stations.map((s): [string, React.ReactNode, string] => [
+      s.id,
+      <>{s.name} <Term k="rIndex">R-index</Term> (yellow {s.yellow} / red {s.red})</>,
+      `${s.r} at ${time(s.time)}${s.stale ? " · delayed" : ""}`,
+    ]),
     ["ov1", <><Term k="ovation">OVATION</Term> probability overhead</>, n.ovation ? `${n.ovation.overhead}%` : "–"],
     ["ov2", <><Term k="ovation">OVATION</Term> max within view (north)</>, n.ovation ? `${n.ovation.inView}%` : "–"],
     ["sun", <Term key="s" k="sunAlt">Sun altitude</Term>, `${n.sunAlt.toFixed(1)}°`],
@@ -81,8 +85,9 @@ export function Advanced({ data }: { data: AuroraData }) {
             </p>
             <p>
               Activity is 0.75 at the spot&apos;s minimum Kp and saturates half a step above. Darkness ramps from 0 at −6° to 1 at
-              −12°. For &ldquo;now&rdquo;, Kp is raised to the local K-index measured at Oulujärvi and Ranua (1-hour range,
-              K9 = 1000 nT), because the ground sees substorms hours before the 3-hour Kp does.
+              −12°. For &ldquo;now&rdquo;, Kp is raised by FMI&apos;s R-index at Oulujärvi and Ranua (yellow line ≈ Kp 3,
+              red line ≈ Kp 5), because local substorms show up there minutes after they start — long before the
+              global 3-hour Kp. Live readings older than 30 minutes are never shown as &ldquo;now&rdquo;.
             </p>
           </div>
 
@@ -91,14 +96,15 @@ export function Advanced({ data }: { data: AuroraData }) {
             <ul className="space-y-1 text-sm">
               {data.sources.map((s) => (
                 <li key={s.name} className="flex items-center gap-2 text-muted">
-                  <span className={`size-1.5 rounded-full ${s.ok ? "bg-great" : "bg-red-400"}`} />
+                  <span className={`size-1.5 shrink-0 rounded-full ${s.status === "ok" ? "bg-great" : s.status === "stale" ? "bg-maybe" : "bg-red-400"}`} />
                   {s.name}
-                  {!s.ok && <span className="text-faint">— unavailable</span>}
+                  {s.status === "stale" && <span className="text-faint">— latest reading too old, not shown as live</span>}
+                  {s.status === "failed" && <span className="text-faint">— unavailable</span>}
                 </li>
               ))}
             </ul>
             <p className="mt-3 text-xs text-faint">
-              JSON for your own tools: <a href={`${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/data.json`} className="text-muted underline underline-offset-4">data.json</a> · rebuilt about every 30 minutes
+              JSON for your own tools: <a href={`${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/data.json`} className="text-muted underline underline-offset-4">data.json</a> · rebuilt every 10 minutes
             </p>
           </div>
         </div>

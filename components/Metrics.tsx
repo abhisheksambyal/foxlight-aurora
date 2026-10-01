@@ -5,10 +5,13 @@ import { Card, Section } from "./ui";
 
 type Metric = { label: string; value: string; unit?: string; tone: Tone; status: string; meaning: string };
 
-const GROUND = ["Quiet", "Quiet", "Unsettled", "Unsettled", "Active", "Storm", "Storm", "Strong storm", "Strong storm", "Extreme"];
+const LEVEL = { none: ["None", "low", "No auroral activity"], medium: ["Medium", "good", "Auroras likely (weak)"], high: ["High", "great", "Strong auroras likely"] } as const;
 
 export function Metrics({ data }: { data: AuroraData }) {
   const n = data.now;
+  const a = n.activity;
+  // Why a value is missing: the source failed, or its latest reading was too old to show as "now".
+  const missing = (id: string) => (data.sources.find((s) => s.id === id)?.status === "stale" ? "Data delayed" : "Unavailable");
   const metrics: Metric[] = [
     {
       label: "Kp index",
@@ -38,7 +41,7 @@ export function Metrics({ data }: { data: AuroraData }) {
       value: n.speed === null ? "–" : String(Math.round(n.speed)),
       unit: "km/s",
       tone: n.speed === null ? "low" : n.speed >= 600 ? "great" : n.speed >= 450 ? "good" : "low",
-      status: n.speed === null ? "Unavailable" : n.speed >= 600 ? "Fast" : n.speed >= 450 ? "Elevated" : "Calm",
+      status: n.speed === null ? missing("wind") : n.speed >= 600 ? "Fast" : n.speed >= 450 ? "Elevated" : "Calm",
       meaning: "Particles streaming from the Sun. Faster than ~450 km/s powers stronger auroras.",
     },
     {
@@ -46,15 +49,15 @@ export function Metrics({ data }: { data: AuroraData }) {
       value: n.bz === null ? "–" : n.bz.toFixed(1),
       unit: "nT",
       tone: n.bz === null ? "low" : n.bz <= -5 ? "great" : n.bz < 0 ? "good" : "low",
-      status: n.bz === null ? "Unavailable" : n.bz <= -5 ? "Strongly south" : n.bz < 0 ? "South" : "North",
+      status: n.bz === null ? missing("mag") : n.bz <= -5 ? "Strongly south" : n.bz < 0 ? "South" : "North",
       meaning: "Direction of the Sun's magnetic field. Negative (south) lets solar energy in; below −5 often means auroras within an hour.",
     },
     {
-      label: "Magnetic activity near Oulu",
-      value: n.groundK === null ? "–" : `K${n.groundK}`,
-      tone: n.groundK === null ? "low" : n.groundK >= 4 ? "great" : n.groundK >= 2 ? "good" : "low",
-      status: n.groundK === null ? "Unavailable" : GROUND[n.groundK],
-      meaning: "Local K on the same 0–9 scale as Kp, measured at Oulujärvi and Ranua — what is happening over Finland right now.",
+      label: "Auroral activity near Oulu",
+      value: a ? LEVEL[a.level][0] : "–",
+      tone: a ? LEVEL[a.level][1] : "low",
+      status: a ? LEVEL[a.level][2] : missing("rindex"),
+      meaning: `FMI's R-index from magnetometers at Oulujärvi and Ranua${a ? `, measured ${time(a.time)}` : ""} — the most direct sign of auroras over Finland right now.`,
     },
   ];
 

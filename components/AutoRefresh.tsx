@@ -5,9 +5,9 @@ import { useEffect } from "react";
 const BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 const CHECK_EVERY = 5 * 60 * 1000;
 // The page and data.json come from the same build, seconds apart; only a clearly newer build counts.
-const NEWER_BY = 10 * 60 * 1000;
+const NEWER_BY = 5 * 60 * 1000;
 
-/** The site is rebuilt every ~30 min. Reload when a newer build is live (checked every 5 min and on tab focus). */
+/** The site is rebuilt every ~10 min. Reload when a newer build is live (checked every 5 min and on tab focus). */
 export function AutoRefresh({ generatedAt }: { generatedAt: string }) {
   useEffect(() => {
     let last = 0;

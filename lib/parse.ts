@@ -1,14 +1,23 @@
 // Pure parsers for NOAA SWPC and FMI open-data formats.
+// They validate what they read and throw on anything unexpected: a changed API format must fail loudly
+// (the source shows as unavailable) instead of silently producing wrong numbers.
 
 export type KpBin = { start: string; kp: number; kind: "observed" | "estimated" | "predicted"; scale: string | null };
 export type Point = { time: string; value: number };
 export type Series = { lat: number; lon: number; points: Point[] };
 
 const utc = (tag: string) => (tag.endsWith("Z") ? tag : `${tag}Z`);
+const iso = (ms: number) => new Date(ms).toISOString().replace(".000", "");
+const KINDS = ["observed", "estimated", "predicted"];
 
 type KpRow = { time_tag: string; kp: number; observed: string; noaa_scale: string | null };
 
 export function parseKpForecast(rows: KpRow[]): KpBin[] {
+  if (!Array.isArray(rows) || rows.length === 0) throw new Error("Kp forecast: empty or not a list");
+  for (const r of rows) {
+    if (typeof r?.time_tag !== "string" || typeof r.kp !== "number" || !KINDS.includes(r.observed))
+      throw new Error(`Kp forecast: unexpected row ${JSON.stringify(r)}`);
+  }
   return rows.map((r) => ({
     start: utc(r.time_tag),
     kp: r.kp,
@@ -25,6 +34,7 @@ export function parse27Day(text: string): { date: string; ap: number; kp: number
     const month = String(MONTHS.indexOf(m[2]) + 1).padStart(2, "0");
     out.push({ date: `${m[1]}-${month}-${m[3]}`, ap: Number(m[4]), kp: Number(m[5]) });
   }
+  if (!out.length) throw new Error("27-day outlook: no rows found");
   return out;
 }
 
@@ -40,21 +50,6 @@ export function parseFmiSeries(xml: string): Series[] {
     if (!Number.isNaN(value)) s.points.push({ time, value });
   }
   return [...byPos.values()];
-}
-
-export type Station = { id: string; name: string; lat: number; lon: number };
-
-/** Max−min of each magnetometer station's series over the last `minutes`. */
-export function stationRanges(series: Series[], stations: Station[], now: Date, minutes: number) {
-  const since = now.getTime() - minutes * 60000;
-  return stations.flatMap((st) => {
-    const s = series.find((x) => Math.abs(x.lat - st.lat) < 0.01 && Math.abs(x.lon - st.lon) < 0.01);
-    const pts = s?.points.filter((p) => Date.parse(p.time) >= since) ?? [];
-    if (!pts.length) return [];
-    const vals = pts.map((p) => p.value);
-    const rangeNt = Math.round((Math.max(...vals) - Math.min(...vals)) * 10) / 10;
-    return [{ id: st.id, name: st.name, rangeNt, latest: pts[pts.length - 1].time }];
-  });
 }
 
 type RtswRow = { time_tag: string; active: boolean } & Record<string, unknown>;
@@ -75,12 +70,35 @@ export function parseRtsw(rows: RtswRow[], field: string, now: Date, minutes: nu
 export function ovationNear(grid: { coordinates: number[][] }, lon: number, lat: number) {
   const lo = Math.round(lon);
   const la = Math.round(lat);
-  let overhead = 0;
+  let overhead: number | null = null;
   let inView = 0;
-  for (const [x, y, p] of grid.coordinates) {
+  for (const [x, y, p] of grid?.coordinates ?? []) {
     if (Math.abs(x - lo) > 1 || y < la || y > la + 4) continue;
     if (x === lo && y === la) overhead = p;
     inView = Math.max(inView, p);
   }
+  if (overhead === null) throw new Error("OVATION: grid has no cell for Oulu");
   return { overhead, inView };
+}
+
+type RIndexFig = {
+  data: { x?: string[]; customdata?: (string | number | null)[][] }[];
+  layout?: { shapes?: { type: string; y0: number }[] };
+};
+
+/**
+ * FMI R-index station JSON (a Plotly figure: 5-min bars, threshold lines) → the station's thresholds and
+ * the strongest R in the latest 15 minutes. Data gaps (null) are skipped, never read as zero.
+ */
+export function parseRIndex(fig: RIndexFig) {
+  const [yellow, red] = (fig?.layout?.shapes ?? []).filter((s) => s.type === "line").map((s) => s.y0).sort((a, b) => a - b);
+  if (!(yellow > 0 && red > yellow)) throw new Error("R-index: threshold lines missing");
+  const pts = (fig.data ?? [])
+    .flatMap((t) => (t.customdata ?? []).map((c, i) => ({ time: Date.parse(t.x?.[i] ?? ""), r: c?.[1] })))
+    .filter((p): p is { time: number; r: number } => typeof p.r === "number" && !Number.isNaN(p.time))
+    .sort((a, b) => a.time - b.time);
+  if (!pts.length) throw new Error("R-index: no data");
+  const latest = pts[pts.length - 1].time;
+  const r = Math.max(...pts.filter((p) => p.time > latest - 15 * 60000).map((p) => p.r));
+  return { yellow, red, r: Math.round(r), time: iso(latest) };
 }

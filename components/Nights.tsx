@@ -1,6 +1,6 @@
 import type { AuroraData } from "@/lib/data";
 import { nightLabel, nightOf } from "@/lib/forecast";
-import { day } from "@/lib/format";
+import { date } from "@/lib/format";
 import { NightColumns, type NightView } from "./NightColumns";
 import { Section } from "./ui";
 import { Term } from "./Term";
@@ -14,7 +14,8 @@ export function Nights({ data }: { data: AuroraData }) {
     return {
       ...n,
       label: nightLabel(n.date, now).replace(/ night$/, ""),
-      day: day(hours[0]?.time ?? n.start),
+      // The evening the night starts on (after midnight, "Tonight" is still the previous evening's night).
+      day: date(n.date),
       spot: spotName(n.spotId),
       hours: hours.map((h) => ({ time: h.time, score: h.score, kp: h.kp, cloud: h.cloud, spot: spotName(h.spotId) })),
     };

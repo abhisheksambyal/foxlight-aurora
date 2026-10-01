@@ -54,6 +54,11 @@ export function Hero({ data }: { data: AuroraData }) {
   const sub = "mt-0.5 block text-xs font-normal text-muted";
   const nextActive = outlookHighlights(data.outlook)[0];
   const alert = ALERT[data.now.alert];
+  // The alert is about solar activity; say so when darkness or clouds stand in the way.
+  const caveats = alert.tone === "low" ? [] : [
+    data.now.sunAlt > -6 && "once dark",
+    data.now.cloudCity >= 70 && "if the clouds clear",
+  ].filter(Boolean);
 
   let detail: React.ReactNode;
   if (v === "now") {
@@ -101,7 +106,9 @@ export function Hero({ data }: { data: AuroraData }) {
           ) : "–"],
           ["Chance", <Term key="t" k="chance">Chance</Term>, <>
             <Score value={score} />
-            {basis && <span className={sub}><Term k="kp">Kp</Term> {kp(basis.kp)} · clouds {basis.cloud === null ? "?" : Math.round(basis.cloud)}%</span>}
+            {basis && v === "now" && data.now.driver === "fmi" && data.now.activity ? (
+              <span className={sub}><Term k="rIndex">FMI</Term>: {data.now.activity.level} activity · clouds {basis.cloud === null ? "?" : Math.round(basis.cloud)}%</span>
+            ) : basis && <span className={sub}><Term k="kp">Kp</Term> {kp(basis.kp)} · clouds {basis.cloud === null ? "?" : Math.round(basis.cloud)}%</span>}
           </>],
         ].map(([key, label, val]) => (
           <div key={key as string} className="min-w-0 px-4 py-4 sm:px-5">
@@ -111,11 +118,15 @@ export function Hero({ data }: { data: AuroraData }) {
         ))}
       </dl>
 
-      <p className="mt-4 inline-flex items-center gap-2 rounded-full border border-line bg-bg px-3 py-1.5 text-xs text-muted">
-        <span className={`size-1.5 rounded-full ${TONE[alert.tone].dot}`} />
-        <Term k="kp" icon><span className="font-mono text-ink tabular-nums">Kp {kp(data.now.effectiveKp)}</span></Term>
+      <p className="mt-4 inline-block rounded-2xl border border-line bg-bg px-3 py-1.5 text-xs leading-relaxed text-muted">
+        <span className={`mr-2 inline-block size-1.5 rounded-full align-middle ${TONE[alert.tone].dot}`} />
+        {data.now.driver === "fmi" && data.now.activity ? (
+          <Term k="rIndex" icon><span className="text-ink">FMI: {data.now.activity.level} activity</span></Term>
+        ) : (
+          <Term k="kp" icon><span className="font-mono text-ink tabular-nums">Kp {kp(data.now.effectiveKp)}</span></Term>
+        )}{" "}
         {alert.text}
-        {data.now.sunAlt > -6 && alert.tone !== "low" && <span className="text-faint">(once dark)</span>}
+        {caveats.length > 0 && <span className="text-faint"> ({caveats.join(", ")})</span>}
       </p>
     </header>
   );
