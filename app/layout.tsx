@@ -10,6 +10,7 @@ export const metadata: Metadata = {
   description:
     "When and where to see the aurora (revontulet) in Oulu tonight. Live Kp index, solar wind, FMI cloud cover and the best dark-sky spots near Oulu.",
   applicationName: "Foxlight Aurora",
+  verification: { google: "PWzsl5iJmBS-BFo1mwHvX3XZCzAYZ5Ce8vorhV1oGY0" },
   openGraph: {
     title: "Foxlight Aurora — Northern Lights Forecast for Oulu",
     description: "Tonight’s aurora chance in Oulu, the best time, and where to go.",
