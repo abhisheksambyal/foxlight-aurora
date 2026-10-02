@@ -3,8 +3,13 @@ name: Build & deploy
 on:
   push:
     branches: [main]
+  # Times are UTC. Every 10 min while it can be dark in Oulu (16:00–08:59 Finnish summer time), hourly in daylight.
+  # Off the hour because GitHub delays busy slots. GitHub runs schedules late or not at all, so an external timer
+  # also triggers workflow_dispatch on the same pattern (see README); overlapping runs are fine (concurrency below).
   schedule:
-    - cron: "3-59/10 * * * *" # rebuild with fresh NOAA + FMI data every 10 min (off the hour: GitHub delays busy slots)
+    - cron: "3-59/10 13-23 * * *"
+    - cron: "3-59/10 0-5 * * *"
+    - cron: "3 6-12 * * *"
   workflow_dispatch:
 
 permissions:

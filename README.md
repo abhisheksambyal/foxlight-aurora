@@ -3,10 +3,10 @@
 *Northern lights forecast for Oulu · Revontulet Oulussa*
 
 Answers **"Should I go out tonight, when, and where?"** for aurora hunting around Oulu, Finland (65°N).
-Enter your address (or use your location) to rank the viewing spots by distance from you.
+Enter an area or landmark (or use your location) to rank the viewing spots by distance from you.
 
 Built with Next.js 16 (static export), Tailwind CSS 4 and TypeScript. No UI libraries; charts are inline SVG.
-Hosted on GitHub Pages and rebuilt with fresh data by GitHub Actions, scheduled every 10 minutes (GitHub may delay or skip scheduled runs).
+Hosted on GitHub Pages and rebuilt with fresh data by GitHub Actions: every 10 minutes while it can be dark, hourly in daylight.
 
 ```bash
 npm install
@@ -24,7 +24,9 @@ npm run build    # static site in ./out (set BASE_PATH=/repo-name for a project 
   the build fails and the previous correct deployment stays online. Optional sources show as "unavailable", and live
   readings older than 30 min show as "delayed" instead of "now". If the page itself is over 75 min old, visitors see a
   warning banner (computed in the browser, so it works even if the update pipeline stops).
-- **Scheduled rebuilds** — `.github/workflows/deploy.yml` runs tests, builds and deploys on every push and on a 10-minute schedule (best effort: GitHub often runs scheduled jobs late).
+- **Scheduled rebuilds** — `.github/workflows/deploy.yml` runs tests, builds and deploys on every push, every 10 min
+  from 13:00 to 05:59 UTC (when it can be dark in Oulu) and hourly otherwise. GitHub runs schedules late or skips
+  them, so an external timer triggers the same workflow on the same pattern (see [Reliable refresh](#reliable-refresh)).
   Open pages check `data.json` and reload when a newer build is live.
 - **Visibility model** — `lib/oulu.ts`:
   `chance = 100 × activity(Kp − spot.minKp) × (1 − clouds) × darkness(sun altitude)`.
@@ -34,8 +36,25 @@ npm run build    # static site in ./out (set BASE_PATH=/repo-name for a project 
   auroral activity index with per-station thresholds (yellow = 50% chance of weak auroras ≈ Kp 3, red = 50% chance
   of strong auroras ≈ Kp 5). It catches local substorms the global 3-hour Kp misses.
 - **Forecast** — `lib/forecast.ts` scores 72 hours per spot, groups them into nights and finds each night's best window.
-- **Your location** — address search uses OpenStreetMap Nominatim from the browser; the chosen point is kept only in
+- **Your location** — place search uses OpenStreetMap Nominatim from the browser; the chosen point is kept only in
   `localStorage`. Distances default to Oulu Market Square.
+
+## Reliable refresh
+
+GitHub's `schedule:` trigger is best effort (runs are often hours late), so [cron-job.org](https://cron-job.org)
+calls the workflow's `workflow_dispatch` on time. Two jobs, timezone UTC, both `POST`ing to
+`https://api.github.com/repos/foxlight-aurora/foxlight-aurora.github.io/actions/workflows/deploy.yml/dispatches`
+with body `{"ref":"main"}`:
+
+| Job | Minutes | Hours (UTC) |
+|---|---|---|
+| Night | 0, 10, 20, 30, 40, 50 | 13–23, 0–5 |
+| Day | 0 | 6–12 |
+
+Headers: `Accept: application/vnd.github+json`, `X-GitHub-Api-Version: 2022-11-28`,
+`Authorization: Bearer <token>`. The token is a fine-grained personal access token scoped to this repository only,
+with **Actions: Read and write** and nothing else. A successful call returns `204`. When the token expires,
+create a new one and paste it into both jobs.
 
 ## Data sources
 
