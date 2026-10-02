@@ -107,7 +107,7 @@ export function Hero({ data }: { data: AuroraData }) {
           ["Chance", <Term key="t" k="chance">Chance</Term>, <>
             <Score value={score} />
             {basis && v === "now" && data.now.driver === "fmi" && data.now.activity ? (
-              <span className={sub}><Term k="rIndex">FMI</Term>: {data.now.activity.level} activity · clouds {basis.cloud === null ? "?" : Math.round(basis.cloud)}%</span>
+              <span className={sub}><Term k="rIndex">Local activity</Term>: {data.now.activity.level} · clouds {basis.cloud === null ? "?" : Math.round(basis.cloud)}%</span>
             ) : basis && <span className={sub}><Term k="kp">Kp</Term> {kp(basis.kp)} · clouds {basis.cloud === null ? "?" : Math.round(basis.cloud)}%</span>}
           </>],
         ].map(([key, label, val]) => (
@@ -121,7 +121,7 @@ export function Hero({ data }: { data: AuroraData }) {
       <p className="mt-4 inline-block rounded-2xl border border-line bg-bg px-3 py-1.5 text-xs leading-relaxed text-muted">
         <span className={`mr-2 inline-block size-1.5 rounded-full align-middle ${TONE[alert.tone].dot}`} />
         {data.now.driver === "fmi" && data.now.activity ? (
-          <Term k="rIndex" icon><span className="text-ink">FMI: {data.now.activity.level} activity</span></Term>
+          <Term k="rIndex" icon><span className="text-ink">Local activity: {data.now.activity.level}</span></Term>
         ) : (
           <Term k="kp" icon><span className="font-mono text-ink tabular-nums">Kp {kp(data.now.effectiveKp)}</span></Term>
         )}{" "}

@@ -60,9 +60,9 @@ export function Spots({ spots, dark }: { spots: AuroraData["spots"]; dark: boole
       if (hit) {
         choose(hit);
         setMode("nearest");
-      } else setMsg("Couldn't find that address. Try a street and town, e.g. “Isokatu 1, Oulu”.");
+      } else setMsg("Couldn't find that place. Try an area or landmark, e.g. “Nallikari” or “Tuira”.");
     } catch {
-      setMsg("Address search is unavailable right now.");
+      setMsg("Place search is unavailable right now.");
     }
     setBusy(false);
   };
@@ -87,13 +87,13 @@ export function Spots({ spots, dark }: { spots: AuroraData["spots"]; dark: boole
     <Section id="spots" title="Where to go" hint="Always face north">
       <Card className="mb-3 p-4 sm:p-5">
         <form onSubmit={search} className="flex gap-2">
-          <label htmlFor="addr" className="sr-only">Your address</label>
+          <label htmlFor="addr" className="sr-only">Starting point</label>
           <input
             id="addr"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Your address or area, e.g. Tuira"
-            autoComplete="street-address"
+            placeholder="Area, e.g. Tuira"
+            autoComplete="off"
             className="min-w-0 flex-1 rounded-xl border border-line bg-bg px-3 py-2 text-sm placeholder:text-faint focus:border-great/50 focus:outline-none"
           />
           <button type="submit" disabled={busy}
@@ -165,7 +165,7 @@ export function Spots({ spots, dark }: { spots: AuroraData["spots"]; dark: boole
         ))}
       </div>
       <p className="mt-3 text-xs text-faint">
-        Address search by OpenStreetMap. Your location is only kept in this browser.
+        Place search by OpenStreetMap. Your starting point is only kept in this browser.
       </p>
     </Section>
   );
