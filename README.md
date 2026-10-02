@@ -51,9 +51,9 @@ with body `{"ref":"main"}`:
 | Night | 0, 10, 20, 30, 40, 50 | 13–23, 0–5 |
 | Day | 0 | 6–12 |
 
-Headers: `Accept: application/vnd.github+json`, `X-GitHub-Api-Version: 2022-11-28`,
+Headers: `Accept: application/vnd.github+json`, `X-GitHub-Api-Version: 2026-03-10`,
 `Authorization: Bearer <token>`. The token is a fine-grained personal access token scoped to this repository only,
-with **Actions: Read and write** and nothing else. A successful call returns `204`. When the token expires,
+with **Actions: Read and write** and nothing else. A successful call returns `200` with the run details (`204` on the older `2022-11-28` API version). When the token expires,
 create a new one and paste it into both jobs.
 
 ## Data sources
