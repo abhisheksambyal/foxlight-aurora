@@ -30,11 +30,22 @@ const readSaved = () => {
   }
 };
 
+/** A saved origin, or null if missing or unreadable (e.g. hand-edited or left by an older version). */
+const parseSaved = (raw: string | null): Origin | null => {
+  if (!raw) return null;
+  try {
+    const o = JSON.parse(raw);
+    return typeof o?.name === "string" && Number.isFinite(o.lat) && Number.isFinite(o.lon) ? o : null;
+  } catch {
+    return null;
+  }
+};
+
 export function Spots({ spots, dark }: { spots: AuroraData["spots"]; dark: boolean }) {
   // Origin remembered from a previous visit (read after hydration; the server always renders the city centre).
   const saved = useSyncExternalStore(noSubscribe, readSaved, () => null);
   const [picked, setPicked] = useState<Origin | null>(null);
-  const origin: Origin = picked ?? (saved ? JSON.parse(saved) : CITY_CENTRE);
+  const origin: Origin = picked ?? parseSaved(saved) ?? CITY_CENTRE;
   const [mode, setMode] = useState<RankMode>("chance");
   const [query, setQuery] = useState("");
   const [msg, setMsg] = useState<string | null>(null);
