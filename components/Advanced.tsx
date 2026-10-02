@@ -104,7 +104,7 @@ export function Advanced({ data }: { data: AuroraData }) {
               ))}
             </ul>
             <p className="mt-3 text-xs text-faint">
-              JSON for your own tools: <a href={`${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/data.json`} className="text-muted underline underline-offset-4">data.json</a> · rebuilt every 10 minutes
+              JSON for your own tools: <a href={`${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/data.json`} className="text-muted underline underline-offset-4">data.json</a> · rebuilt several times an hour
             </p>
           </div>
         </div>

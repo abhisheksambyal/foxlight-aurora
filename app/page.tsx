@@ -52,7 +52,7 @@ export default function Home() {
           whose tail sweeps sparks from the snow into the sky.
         </p>
         <p>
-          Updated {day(data.generatedAt)} {time(data.generatedAt)} (Oulu time) · updated every 10 minutes.
+          Updated {day(data.generatedAt)} {time(data.generatedAt)} (Oulu time) · refreshed several times an hour.
         </p>
         <p className="mt-1">
           Data:{" "}

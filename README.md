@@ -6,7 +6,7 @@ Answers **"Should I go out tonight, when, and where?"** for aurora hunting aroun
 Enter your address (or use your location) to rank the viewing spots by distance from you.
 
 Built with Next.js 16 (static export), Tailwind CSS 4 and TypeScript. No UI libraries; charts are inline SVG.
-Hosted on GitHub Pages and rebuilt with fresh data every 10 minutes by GitHub Actions.
+Hosted on GitHub Pages and rebuilt with fresh data by GitHub Actions, scheduled every 10 minutes (GitHub may delay or skip scheduled runs).
 
 ```bash
 npm install
@@ -24,7 +24,7 @@ npm run build    # static site in ./out (set BASE_PATH=/repo-name for a project 
   the build fails and the previous correct deployment stays online. Optional sources show as "unavailable", and live
   readings older than 30 min show as "delayed" instead of "now". If the page itself is over 75 min old, visitors see a
   warning banner (computed in the browser, so it works even if the update pipeline stops).
-- **Scheduled rebuilds** — `.github/workflows/deploy.yml` runs tests, builds and deploys on every push and every 10 minutes.
+- **Scheduled rebuilds** — `.github/workflows/deploy.yml` runs tests, builds and deploys on every push and on a 10-minute schedule (best effort: GitHub often runs scheduled jobs late).
   Open pages check `data.json` and reload when a newer build is live.
 - **Visibility model** — `lib/oulu.ts`:
   `chance = 100 × activity(Kp − spot.minKp) × (1 − clouds) × darkness(sun altitude)`.
