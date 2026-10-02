@@ -1,21 +1,34 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { SITE_DESCRIPTION, SITE_NAME, SITE_TITLE, SITE_URL } from "@/lib/site";
 import "./globals.css";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Foxlight Aurora — Northern Lights Forecast for Oulu, Finland",
-  description:
-    "When and where to see the aurora (revontulet) in Oulu tonight. Live Kp index, solar wind, FMI cloud cover and the best dark-sky spots near Oulu.",
-  applicationName: "Foxlight Aurora",
+  metadataBase: new URL(SITE_URL),
+  title: SITE_TITLE,
+  description: SITE_DESCRIPTION,
+  applicationName: SITE_NAME,
+  keywords: [
+    "northern lights Oulu", "aurora forecast Oulu", "aurora borealis Finland", "revontulet Oulu",
+    "revontuliennuste", "Kp index", "northern lights tonight", "where to see northern lights in Oulu",
+  ],
+  alternates: { canonical: "/" },
   verification: { google: "PWzsl5iJmBS-BFo1mwHvX3XZCzAYZ5Ce8vorhV1oGY0" },
   openGraph: {
-    title: "Foxlight Aurora — Northern Lights Forecast for Oulu",
+    title: `${SITE_NAME} · Northern lights forecast for Oulu`,
     description: "Tonight’s aurora chance in Oulu, the best time, and where to go.",
+    url: "/",
+    siteName: SITE_NAME,
     type: "website",
     locale: "en_GB",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `${SITE_NAME} · Northern lights forecast for Oulu`,
+    description: "Tonight’s aurora chance in Oulu, the best time, and where to go.",
   },
 };
 

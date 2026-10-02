@@ -36,6 +36,9 @@ npm run build    # static site in ./out (set BASE_PATH=/repo-name for a project 
   auroral activity index with per-station thresholds (yellow = 50% chance of weak auroras ≈ Kp 3, red = 50% chance
   of strong auroras ≈ Kp 5). It catches local substorms the global 3-hour Kp misses.
 - **Forecast** — `lib/forecast.ts` scores 72 hours per spot, groups them into nights and finds each night's best window.
+- **Search engines** — `app/robots.ts`, `app/sitemap.ts` (lastmod = data time), `app/manifest.ts`, a static
+  share image (`app/opengraph-image.png`, PNG so GitHub Pages serves it as an image), canonical URL and JSON-LD
+  (WebSite, WebPage, FAQPage) in `app/page.tsx`. Site name, title and description live in `lib/site.ts`.
 - **Your location** — place search uses OpenStreetMap Nominatim from the browser; the chosen point is kept only in
   `localStorage`. Distances default to Oulu Market Square.
 
