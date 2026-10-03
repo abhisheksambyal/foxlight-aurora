@@ -16,6 +16,8 @@ export const metadata: Metadata = {
     "revontuliennuste", "Kp index", "northern lights tonight", "where to see northern lights in Oulu",
   ],
   alternates: { canonical: "/" },
+  // iPhone home-screen web app: short name (iOS would otherwise suggest the long search title) and a dark status bar.
+  appleWebApp: { capable: true, title: "Foxlight", statusBarStyle: "black" },
   verification: { google: "PWzsl5iJmBS-BFo1mwHvX3XZCzAYZ5Ce8vorhV1oGY0" },
   openGraph: {
     title: `${SITE_NAME} · Northern lights forecast for Oulu`,
